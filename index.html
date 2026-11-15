@@ -1,0 +1,637 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Puzzle Norma Kita</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: buku 3D dua halaman (satu halaman di ponsel) dengan bilah kontrol di bawah; mode baca sebagai cadangan. */
+:root{
+  --bg:#E9ECF5; --ink:#1B2340; --muted:#566080; --paper:#FCFCFE; --paper-back:#EDEFF7; --line:#D3D9EA;
+  --brand:#3338C9; --brand-ink:#FFFFFF; --soft:#F0F2FA;
+  --agama:#0B7263; --agama-bg:#DCF3EE;
+  --susila:#1F5CC4; --susila-bg:#DFEAFC;
+  --sopan:#8A5000; --sopan-bg:#FFEFCC;
+  --hukum:#B02F2B; --hukum-bg:#FBE0DE;
+  --good:#0E7A55; --bad:#B02F2B; --cover:#1B2155;
+  --font-d:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --font-b:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1325; --ink:#E9ECF8; --muted:#A9B1CE; --paper:#1A2038; --paper-back:#151A30; --line:#303A62;
+  --brand:#8E91FF; --brand-ink:#10143A; --soft:#222A4A;
+  --agama:#52D3BB; --agama-bg:#12332E; --susila:#84B4FF; --susila-bg:#15294F;
+  --sopan:#F3BB52; --sopan-bg:#3A2B0E; --hukum:#FF8F89; --hukum-bg:#41191A;
+  --good:#5ED6A4; --bad:#FF8F89; --cover:#232A68; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1325; --ink:#E9ECF8; --muted:#A9B1CE; --paper:#1A2038; --paper-back:#151A30; --line:#303A62;
+  --brand:#8E91FF; --brand-ink:#10143A; --soft:#222A4A;
+  --agama:#52D3BB; --agama-bg:#12332E; --susila:#84B4FF; --susila-bg:#15294F;
+  --sopan:#F3BB52; --sopan-bg:#3A2B0E; --hukum:#FF8F89; --hukum-bg:#41191A;
+  --good:#5ED6A4; --bad:#FF8F89; --cover:#232A68; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-b);
+  display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;overflow:hidden}
+a{color:var(--brand)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;flex:none}
+.bar h1{margin:0;font:600 1.05rem/1.2 var(--font-d);letter-spacing:.01em}
+.bar h1 small{display:block;font:600 .72rem/1.3 var(--font-b);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tbtn{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 14px;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.tbtn:hover{border-color:var(--brand)}
+
+.stage{flex:1;min-height:0;position:relative;touch-action:pan-y}
+.scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:2400px}
+.book{position:relative;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.45,.05,.25,1);will-change:transform}
+.book::after{content:"";position:absolute;left:8%;right:8%;bottom:-26px;height:28px;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(8,12,34,.38),rgba(8,12,34,0) 70%);transform:translateZ(-1px);pointer-events:none}
+.leaf{position:absolute;top:0;transform-origin:left center;transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.45,.05,.25,1),z-index 0s linear .45s}
+.leaf.flipped{transform:rotateY(-180deg)}
+.book.narrow .leaf{visibility:visible;transition:transform .9s cubic-bezier(.45,.05,.25,1),z-index 0s linear .45s,visibility 0s linear 0s}
+.book.narrow .leaf.flipped{visibility:hidden;transition:transform .9s cubic-bezier(.45,.05,.25,1),z-index 0s linear .45s,visibility 0s linear .9s}
+.face{position:absolute;inset:0;overflow:hidden;background:var(--paper);
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  box-shadow:0 10px 28px rgba(10,15,40,.22),0 1px 0 rgba(255,255,255,.4) inset}
+.face.front{border-radius:3px 12px 12px 3px}
+.face.back{transform:rotateY(180deg);border-radius:12px 3px 3px 12px}
+.face.back.blank{background:var(--paper-back)}
+.face.front::after,.face.back::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3}
+.face.front::after{background:linear-gradient(90deg,rgba(10,15,40,.2),rgba(10,15,40,0) 9%)}
+.face.back::after{background:linear-gradient(270deg,rgba(10,15,40,.2),rgba(10,15,40,0) 9%)}
+
+.pg{position:relative;height:100%;overflow-y:auto;overscroll-behavior:contain;
+  font-size:calc(var(--pw) / 24);line-height:1.38;padding:1.05em 1.15em 2.4em;color:var(--ink)}
+.pg .folio{position:absolute;bottom:.7em;left:0;right:0;text-align:center;font-size:.72em;color:var(--muted);font-weight:700;pointer-events:none}
+.pg h2{font:600 1.42em/1.12 var(--font-d);margin:.1em 0 .45em;text-wrap:balance}
+.pg h3{font:600 1.02em/1.2 var(--font-d);margin:.6em 0 .25em}
+.pg p{margin:.35em 0}
+.pg ul,.pg ol{margin:.3em 0;padding-left:1.15em}
+.pg li{margin:.18em 0}
+.k{display:inline-block;font:800 .68em/1 var(--font-b);letter-spacing:.09em;text-transform:uppercase;color:var(--brand);background:var(--soft);padding:.5em .8em;border-radius:999px;margin-bottom:.7em}
+.muted{color:var(--muted)}
+.small{font-size:.84em}
+sup.cite{font-size:.62em;line-height:0;margin-left:.1em}
+sup.cite a{text-decoration:none;font-weight:800;color:var(--brand);padding:0 .1em;cursor:pointer}
+.box{background:var(--soft);border-radius:.8em;padding:.7em .85em;margin:.55em 0}
+.box b{font-family:var(--font-d);font-weight:600}
+.big{font:600 1.12em/1.25 var(--font-d)}
+.steps{list-style:none;padding:0;margin:.5em 0;counter-reset:s}
+.steps li{display:grid;grid-template-columns:1.7em 1fr;gap:.55em;align-items:start;margin:.4em 0;counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:1.55em;height:1.55em;border-radius:50%;background:var(--brand);color:var(--brand-ink);font:700 .85em var(--font-d)}
+.steps b{font-family:var(--font-d);font-weight:600}
+.norm{--c:var(--brand);--cb:var(--soft);background:var(--cb);border-radius:.85em;padding:.65em .85em;margin:.55em 0}
+.norm>b{display:block;font:600 1.08em/1.2 var(--font-d);color:var(--c);margin-bottom:.25em}
+.norm dl{margin:0;display:grid;grid-template-columns:4.6em 1fr;gap:.15em .6em;font-size:.92em}
+.norm dt{font-weight:800;color:var(--c)}
+.norm dd{margin:0}
+.nrm-agama{--c:var(--agama);--cb:var(--agama-bg)}
+.nrm-susila{--c:var(--susila);--cb:var(--susila-bg)}
+.nrm-sopan{--c:var(--sopan);--cb:var(--sopan-bg)}
+.nrm-hukum{--c:var(--hukum);--cb:var(--hukum-bg)}
+.tbl{width:100%;border-collapse:collapse;font-size:.92em;margin:.4em 0}
+.tbl th,.tbl td{text-align:left;padding:.4em .5em;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-weight:800;color:var(--muted);font-size:.85em;letter-spacing:.04em;text-transform:uppercase}
+.tag{display:inline-block;padding:.05em .55em;border-radius:999px;font-weight:800;font-size:.8em;background:var(--cb,var(--soft));color:var(--c,var(--ink))}
+textarea,select{width:100%;font:inherit;font-size:.95em;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:.6em;padding:.5em .65em;resize:none}
+textarea:focus,select:focus{border-color:var(--brand)}
+label.lb{display:block;font-weight:800;font-size:.9em;margin:.55em 0 .2em}
+.btn{display:inline-block;border:0;background:var(--brand);color:var(--brand-ink);font:700 .95em var(--font-d);padding:.55em 1.1em;border-radius:999px;cursor:pointer;margin-top:.5em}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.toc{list-style:none;padding:0;margin:.4em 0}
+.toc li{margin:0}
+.toc button{width:100%;display:flex;justify-content:space-between;gap:.6em;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:.3em .1em;cursor:pointer;font-size:.95em}
+.toc button span:last-child{color:var(--muted);font-weight:700}
+.toc button:hover span:first-child{color:var(--brand)}
+.radios{display:flex;flex-wrap:wrap;gap:.4em;margin:.3em 0}
+.radios label{border:1.5px solid var(--line);border-radius:999px;padding:.3em .8em;font-weight:700;font-size:.9em;cursor:pointer;background:var(--paper)}
+.radios input{position:absolute;opacity:0;pointer-events:none}
+.radios label:has(input:checked){background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.radios label:has(input:focus-visible){outline:3px solid var(--brand);outline-offset:2px}
+
+/* Puzzle */
+.pz-top{display:flex;justify-content:space-between;font-weight:800;font-size:.85em;color:var(--muted)}
+.pz-piece{margin:.5em 0;padding:.8em .9em;border-radius:.9em;background:var(--soft);border:2px dashed var(--line);font:600 1.08em/1.25 var(--font-d);min-height:3.6em;display:flex;align-items:center}
+.pz-q{font-weight:800;font-size:.9em;margin:.4em 0 .3em}
+.pz-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45em}
+.nbtn{border:2px solid var(--c);background:var(--cb);color:var(--c);border-radius:.75em;padding:.55em .4em;font:600 .98em var(--font-d);cursor:pointer;line-height:1.1}
+.nbtn:disabled{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+.pz-fb{margin:.5em 0 0;font-size:.92em;min-height:3.4em}
+.pz-fb .ok{color:var(--good);font-weight:800}
+.pz-fb .no{color:var(--bad);font-weight:800}
+.pz-res{text-align:center;padding:.8em 0}
+.pz-res .score{font:700 3em/1 var(--font-d);color:var(--brand)}
+
+/* Sampul */
+.cover-pg{padding:0;background:var(--cover);color:#fff}
+.cv{height:100%;padding:1.3em 1.3em 1.4em;display:flex;flex-direction:column;position:relative;background:
+  radial-gradient(120% 70% at 100% 0%,rgba(110,120,255,.35),rgba(110,120,255,0) 60%),var(--cover)}
+.cv-art{width:58%;align-self:center;margin:.3em 0 .6em;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));transform:rotate(-5deg)}
+.cv-k{font:800 .72em/1.3 var(--font-b);letter-spacing:.12em;text-transform:uppercase;color:#C7CCFF;margin:0}
+.cv h1{font:700 2.55em/.98 var(--font-d);margin:.2em 0 .15em;letter-spacing:-.01em}
+.cv-s{font:600 1.2em/1.2 var(--font-d);margin:0;color:#FFD98A}
+.cv-m{font-size:.85em;color:#C7CCFF;margin:.5em 0 0}
+.cv-a{margin:auto 0 0;font-weight:800;font-size:.9em}
+.cv-hint{font-size:.74em;color:#AEB5FF;margin:.2em 0 0}
+.back-pg .cv{justify-content:center;text-align:center;align-items:center}
+.back-pg .cv h1{font-size:1.9em}
+
+/* Kontrol */
+.ctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 0 max(14px,env(safe-area-inset-bottom,0px))}
+.nav{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);font-size:1.3rem;cursor:pointer;display:grid;place-items:center;font-weight:800}
+.nav:disabled{opacity:.35;cursor:default}
+.nav:not(:disabled):hover{border-color:var(--brand);color:var(--brand)}
+.count{min-width:9.5em;text-align:center;font-weight:800;font-size:.9rem;color:var(--muted)}
+
+/* Mode baca */
+.reader{flex:1;min-height:0;overflow-y:auto;padding:8px 0 28px}
+.reader .pg{--pw:420px;font-size:17px;height:auto;overflow:visible;width:min(100%,560px);margin:0 auto 18px;border-radius:16px;
+  background:var(--paper);box-shadow:0 4px 18px rgba(10,15,40,.12);padding:1.3em 1.3em 2.6em}
+.reader .cover-pg{padding:0}
+.reader .cv{min-height:30em}
+.reader .cover-pg,.reader .back-pg{overflow:hidden}
+.hint{color:var(--muted);font-size:.85rem;text-align:center;margin:0 0 6px}
+
+@media (prefers-reduced-motion:reduce){.book,.leaf{transition-duration:.01s !important;transition-delay:0s !important}}
+</style>
+
+<div class="bar">
+  <h1>Puzzle Norma Kita<small>Pendidikan Pancasila · Kelas VII</small></h1>
+  <button class="tbtn" id="modeBtn" type="button" aria-pressed="false">Mode baca</button>
+</div>
+<main class="stage" id="stage" aria-label="Buku interaktif Puzzle Norma Kita">
+  <div class="scene" id="scene"><div class="book" id="book"></div></div>
+</main>
+<div class="reader" id="reader" hidden></div>
+<div class="ctrl" id="ctrl">
+  <button class="nav" id="prev" type="button" aria-label="Halaman sebelumnya">&#8249;</button>
+  <div class="count" id="count" aria-live="polite"></div>
+  <button class="nav" id="next" type="button" aria-label="Halaman berikutnya">&#8250;</button>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== Daftar pustaka (semua tautan sudah dibuka dan dicek: tersedia gratis) ===== */
+var REFS=[
+ {n:1,html:'Suryatna, Y., dkk. (2023). <i>Pendidikan Pancasila untuk SMP/MTs Kelas VII</i>, Bab 3 Patuh Terhadap Norma. Jakarta: Kemendikbudristek.',links:[['Portal buku sekolah','https://buku.kemdikbud.go.id']]},
+ {n:2,html:'Sukmawati, dkk. (2022). Pemanfaatan media pembelajaran papan informasi untuk peserta didik dalam mempelajari norma-norma yang berlaku dalam masyarakat pada pembelajaran Pendidikan Pancasila dan Kewarganegaraan. <i>Jurnal Kewarganegaraan, 6</i>(1).',links:[['Unduh PDF','https://journal.upy.ac.id/index.php/pkn/article/download/2911/pdf/7102']]},
+ {n:3,html:'Hsb, M. O. (2025). Urgensi nilai dan norma kesadaran berbangsa, beragama dalam pembelajaran Pendidikan Pancasila kelas VI SD. <i>Journal of Contemporary Issue in Elementary Education, 3</i>(1), 29–40.',links:[['Unduh PDF','https://jurnal.ut.ac.id/index.php/jciee/article/download/12244/2555/39207'],['DOI','https://doi.org/10.33830/jciee.v3i1.12244']]},
+ {n:4,html:'Riastuti, E. R., Ningsih, R. I. S., Asmaroini, A. P., & Cahyono, H. (2018). Implementasi metode pembelajaran discovery learning pada mata pelajaran PPKn untuk membentuk civic skill (studi di kelas VIII SMPN 1 Jenangan, Kabupaten Ponorogo). <i>JPK: Jurnal Pancasila dan Kewarganegaraan, 3</i>(1), 60–69.',links:[['Unduh PDF','https://journal.umpo.ac.id/index.php/JPK/article/download/872/673']]},
+ {n:5,html:'Situmorang, N. R. S. B. (2022). Penerapan model pembelajaran discovery learning terhadap peningkatan hasil belajar siswa kelas VIII pada mata pelajaran PPKn di SMP Negeri 1 Tigabinanga tahun pembelajaran 2021/2022. <i>CIVITAS, 8</i>(2), 14–24.',links:[['Unduh PDF','https://jurnal.ulb.ac.id/index.php/civic/article/download/3592/2829']]},
+ {n:6,html:'Salman, M., & Yulianti. (2026). Peningkatan pemahaman konsep wilayah NKRI melalui model discovery learning berbantuan media interaktif digital pada murid. <i>Pendas: Jurnal Ilmiah Pendidikan Dasar, 11</i>(3), 372–384.',links:[['Unduh PDF','https://journal.unpas.ac.id/index.php/pendas/article/download/61930/36599']]},
+ {n:7,html:'Marselina, D., Wardani, K. W., & Darta, D. M. S. (2025). Pendidikan Pancasila melalui model problem based learning berbasis culturally responsive teaching di kelas II SD. <i>Didaktika, 5</i>(2).',links:[['Buka artikel','https://ejournal.upi.edu/index.php/didaktika/article/view/85753'],['DOI','https://doi.org/10.17509/didaktika.v5i2.85753']]},
+ {n:8,html:'Nurramadhani, A., Patras, Y. E., Ghani, R. A., Tatemoto, Y., Anggraeni, R. C., Sisworo, A. F., & Rahayu, C. W. (2025). Culturally responsive teaching: An approach to cultivate students’ global diversity character. <i>Pedagogia: Jurnal Ilmiah Pendidikan, 17</i>(1), 104–112.',links:[['Unduh PDF','https://pedagogia-fkip.unpak.ac.id/index.php/pedagogia/article/download/50/14/423'],['DOI','https://doi.org/10.55215/pedagogia.v17i1.50']]},
+ {n:9,html:'Fauziyah, L. N., & Awaliyah, S. (2023). Pengembangan media pembelajaran Go Puzzle pada mata pelajaran Pendidikan Pancasila dan Kewarganegaraan untuk siswa sekolah menengah pertama. <i>Jurnal Ilmiah Pendidikan Pancasila dan Kewarganegaraan, 8</i>, 245–252.',links:[['Unduh PDF','https://journal2.um.ac.id/index.php/jppk/article/download/23553/12878']]},
+ {n:10,html:'Rivani, Y., Halidjah, S., & Pranata, R. (2024). Pengaruh media pembelajaran puzzle terhadap hasil belajar dalam mata pelajaran Pendidikan Pancasila kelas IV di SDN 30 Pontianak Utara. <i>Jurnal Review Pendidikan dan Pengajaran, 7</i>(1).',links:[['Unduh PDF','https://journal.universitaspahlawan.ac.id/index.php/jrpp/article/download/25399/17727/81907']]},
+ {n:11,html:'Nurjanah, N. A., Pangestu, D., Abung, M., & Erni. (2026). Pengaruh model make a match berbantuan media puzzle terhadap hasil belajar pada mata pelajaran Pendidikan Pancasila peserta didik kelas V SD. <i>Pendas: Jurnal Ilmiah Pendidikan Dasar, 11</i>(2), 272–281.',links:[['Unduh PDF','https://journal.unpas.ac.id/index.php/pendas/article/download/45796/25786']]}
+];
+function refItem(r){
+  return '<li class="ref" id="ref'+r.n+'"><span class="rn">['+r.n+']</span> <span>'+r.html+' '+
+    r.links.map(function(l){return '<a href="'+l[1]+'" target="_blank" rel="noopener">'+l[0]+'</a>'}).join(' · ')+'</span></li>';
+}
+function cite(){var a=[].slice.call(arguments);return '<sup class="cite">'+a.map(function(n){return '<a role="link" tabindex="0" data-go="'+(n<=4?17:(n<=8?18:19))+'" title="Lihat daftar pustaka">['+n+']</a>'}).join('')+'</sup>';}
+
+/* ===== Halaman ===== */
+var PAGES=[
+/* 0 sampul */
+{cls:'cover-pg',html:
+'<div class="cv"><svg class="cv-art" viewBox="0 0 200 200" role="img" aria-label="Empat keping puzzle berwarna hijau, biru, kuning, dan merah yang saling terhubung">'+
+'<g><rect x="12" y="12" width="82" height="82" rx="12" fill="#3CCFB4"/><circle cx="100" cy="53" r="11" fill="#3CCFB4"/>'+
+'<rect x="106" y="12" width="82" height="82" rx="12" fill="#6FA8FF"/><circle cx="147" cy="100" r="11" fill="#6FA8FF"/>'+
+'<rect x="12" y="106" width="82" height="82" rx="12" fill="#FFC14D"/><circle cx="100" cy="147" r="11" fill="#FFC14D"/>'+
+'<rect x="106" y="106" width="82" height="82" rx="12" fill="#FF7F78"/></g></svg>'+
+'<p class="cv-k">Pendidikan Pancasila · Kelas VII</p><h1>Puzzle<br>Norma Kita</h1><p class="cv-s">Bertindak Sesuai Norma</p>'+
+'<p class="cv-m">Bab 3 Patuh Terhadap Norma · Submateri D</p>'+
+'<p class="cv-a">Umi Khoiriyah · SMPN 34 Surabaya</p><p class="cv-hint">Tekan tombol &#8250; atau geser untuk membuka</p></div>'},
+
+/* 1 selamat datang */
+{html:
+'<span class="k">Selamat datang</span><h2>Ayo jadi penjelajah norma</h2>'+
+'<p>Hari ini kamu tidak hanya membaca. Kamu <b>menemukan sendiri</b> hubungan antara tindakan, norma, dan sanksinya.</p>'+
+'<h3>Di akhir buku ini, kamu bisa:</h3>'+
+'<ul><li>menjelaskan <b>mengapa</b> bertindak sesuai norma itu penting;</li>'+
+'<li>mengelompokkan tindakan ke empat norma, lengkap dengan alasan dan sanksinya;</li>'+
+'<li>memperagakan satu tindakan sesuai norma;</li>'+
+'<li>bekerja sama, menghargai cara teman, dan membuat satu janji kecil.</li></ul>'+
+'<div class="box small"><b>Cara memakai buku</b><br>Tekan &#8249; &#8250; atau geser layar. Kalau 3D terasa berat, pilih <b>Mode baca</b>.</div>'},
+
+/* 2 cara belajar */
+{html:
+'<span class="k">Cara kita belajar</span><h2>Enam langkah menemukan</h2>'+
+'<ol class="steps">'+
+'<li><span><b>Stimulasi.</b> Ingat pengalamanmu.</span></li>'+
+'<li><span><b>Identifikasi masalah.</b> Buat dugaan.</span></li>'+
+'<li><span><b>Pengumpulan data.</b> Cari bukti dari kartu dan gambar.</span></li>'+
+'<li><span><b>Pengolahan data.</b> Susun puzzle norma.</span></li>'+
+'<li><span><b>Verifikasi.</b> Tukar papan, periksa hasil teman.</span></li>'+
+'<li><span><b>Generalisasi.</b> Tarik kesimpulanmu sendiri.</span></li></ol>'+
+'<p class="small">Belajar dengan cara menemukan membuat murid lebih aktif mencari informasi'+cite(4)+' dan terbukti menaikkan hasil belajar PPKn'+cite(5)+'.</p>'+
+'<div class="box small"><b>Pengalamanmu penting.</b> Kebiasaan di rumah, sekolah, dan lingkunganmu jadi bahan belajar. Cara berbeda boleh, asal nilainya sama'+cite(7,8)+'.</div>'},
+
+/* 3 daftar isi */
+{html:
+'<span class="k">Daftar isi</span><h2>Mau ke mana dulu?</h2>'+
+'<ul class="toc">'+
+'<li><button type="button" data-go="5"><span>Jejak Normaku</span><span>5</span></button></li>'+
+'<li><button type="button" data-go="6"><span>Mengapa ada norma?</span><span>6</span></button></li>'+
+'<li><button type="button" data-go="7"><span>Empat norma</span><span>7</span></button></li>'+
+'<li><button type="button" data-go="9"><span>Siapa yang menegur?</span><span>9</span></button></li>'+
+'<li><button type="button" data-go="10"><span>Di empat lingkungan</span><span>10</span></button></li>'+
+'<li><button type="button" data-go="11"><span>Satu tindakan, banyak norma</span><span>11</span></button></li>'+
+'<li><button type="button" data-go="12"><span>Main Puzzle Norma Kita</span><span>12</span></button></li>'+
+'<li><button type="button" data-go="13"><span>Tebak Normanya</span><span>13</span></button></li>'+
+'<li><button type="button" data-go="14"><span>Cara berbeda, nilai sama</span><span>14</span></button></li>'+
+'<li><button type="button" data-go="15"><span>Refleksiku</span><span>15</span></button></li>'+
+'<li><button type="button" data-go="16"><span>Rangkuman</span><span>16</span></button></li>'+
+'<li><button type="button" data-go="17"><span>Daftar pustaka</span><span>17</span></button></li></ul>'},
+
+/* 4 jejak normaku */
+{html:
+'<span class="k">Langkah 1 · Stimulasi</span><h2>Jejak Normaku</h2>'+
+'<p class="big">Apa yang kamu lakukan tadi pagi sebelum berangkat sekolah yang sesuai aturan atau kebiasaan baik?</p>'+
+'<label class="lb" for="jn-env">Terjadi di lingkungan mana?</label>'+
+'<select id="jn-env" data-save="jn-env"><option value="">Pilih satu</option><option>Keluarga</option><option>Sekolah</option><option>Masyarakat</option><option>Bangsa dan negara</option></select>'+
+'<label class="lb" for="jn-text">Tulis satu tindakanmu</label>'+
+'<textarea id="jn-text" rows="3" data-save="jn-text" placeholder="Contoh: membantu ibu menyapu sebelum berangkat"></textarea>'+
+'<p class="small muted">Pilih contoh yang aman dan nyaman. Tidak ada jawaban yang salah. Tulisanmu hanya tersimpan di perangkat ini.</p>'+
+'<div class="box small"><b>Langkah 2 · Dugaan.</b> Menurutmu, bisakah satu tindakan berkaitan dengan lebih dari satu norma? Simpan dugaanmu, nanti kita uji lewat puzzle.</div>'},
+
+/* 5 mengapa ada norma */
+{html:
+'<span class="k">Langkah 3 · Pengumpulan data</span><h2>Mengapa ada norma?</h2>'+
+'<p>Norma ada agar kebutuhan setiap orang terpenuhi tanpa saling merugikan'+cite(1,2)+'.</p>'+
+'<h3>Norma berlaku jika:</h3>'+
+'<ul><li>ada <b>perintah</b>,</li><li>ada <b>larangan</b>,</li><li>ada <b>sanksi</b>,</li><li>bersifat <b>mengikat dan memaksa</b>.</li></ul>'+
+'<h3>Fungsi norma:</h3>'+
+'<ul><li>menciptakan ketertiban dan keamanan,</li><li>menjadi penuntun dan pedoman,</li><li>memberi sanksi bagi pelanggar,</li><li>mengendalikan perilaku,</li><li>menciptakan keadilan.</li></ul>'+
+'<p class="small muted">Sumber: Buku Siswa hlm. 76–77'+cite(1)+'.</p>'},
+
+/* 6 empat norma A */
+{html:
+'<span class="k">Empat norma · 1 dari 2</span><h2>Agama dan kesusilaan</h2>'+
+'<div class="norm nrm-agama"><b>Norma agama</b><dl><dt>Sumber</dt><dd>Tuhan Yang Maha Esa, tertulis di kitab suci.</dd><dt>Sanksi</dt><dd>Dosa.</dd><dt>Contoh</dt><dd>Beribadah, bersedekah, tidak mengambil barang orang lain.</dd></dl></div>'+
+'<div class="norm nrm-susila"><b>Norma kesusilaan</b><dl><dt>Sumber</dt><dd>Suara hati atau hati nurani.</dd><dt>Sanksi</dt><dd>Rasa bersalah, malu, takut, menyesal.</dd><dt>Contoh</dt><dd>Selalu jujur dalam perkataan dan perbuatan.</dd></dl></div>'+
+'<p class="small muted">Empat norma ini juga menjadi dasar nilai dan akhlak murid'+cite(2,3)+'. Buku Siswa hlm. 79–81.</p>'},
+
+/* 7 empat norma B */
+{html:
+'<span class="k">Empat norma · 2 dari 2</span><h2>Kesopanan dan hukum</h2>'+
+'<div class="norm nrm-sopan"><b>Norma kesopanan</b><dl><dt>Sumber</dt><dd>Kebiasaan masyarakat dalam suatu kelompok.</dd><dt>Sanksi</dt><dd>Sanksi sosial: dikucilkan, dicemooh, ditegur.</dd><dt>Contoh</dt><dd>Cara berpakaian, berbicara, makan; membiasakan antre.</dd></dl></div>'+
+'<div class="norm nrm-hukum"><b>Norma hukum</b><dl><dt>Sumber</dt><dd>Dibuat lembaga berwenang, tertulis, mengikat semua anggota.</dd><dt>Sanksi</dt><dd>Tegas dan tertulis. Di sekolah: teguran, panggilan orang tua, sampai dikeluarkan.</dd><dt>Contoh</dt><dd>Undang-undang, tata tertib sekolah.</dd></dl></div>'+
+'<p class="small muted">Buku Siswa hlm. 83–85'+cite(1)+'.</p>'},
+
+/* 8 siapa menegur */
+{html:
+'<span class="k">Alat analisis</span><h2>Siapa yang menegur?</h2>'+
+'<p>Saat menganalisis tindakan, tanyakan: <b>apa sanksinya, dan siapa yang menegur?</b></p>'+
+'<table class="tbl"><thead><tr><th>Norma</th><th>Yang menegur</th><th>Sanksi</th></tr></thead><tbody>'+
+'<tr><td><span class="tag" style="--c:var(--agama);--cb:var(--agama-bg)">Agama</span></td><td>Tuhan</td><td>Dosa</td></tr>'+
+'<tr><td><span class="tag" style="--c:var(--susila);--cb:var(--susila-bg)">Kesusilaan</span></td><td>Hati nurani</td><td>Bersalah, malu, menyesal</td></tr>'+
+'<tr><td><span class="tag" style="--c:var(--sopan);--cb:var(--sopan-bg)">Kesopanan</span></td><td>Masyarakat sekitar</td><td>Ditegur, dicemooh, dikucilkan</td></tr>'+
+'<tr><td><span class="tag" style="--c:var(--hukum);--cb:var(--hukum-bg)">Hukum</span></td><td>Lembaga berwenang</td><td>Tegas dan tertulis</td></tr></tbody></table>'+
+'<div class="box small">Ketika temanmu memberi tahu aturan tertulis di sekolah, norma apa yang bekerja? Dan ketika hatimu tidak tenang setelah berbohong?</div>'},
+
+/* 9 empat lingkungan */
+{html:
+'<span class="k">Contoh dari buku</span><h2>Bertindak sesuai norma di empat lingkungan</h2>'+
+'<h3>Keluarga</h3><p class="small">Menghormati orang tua, membantu pekerjaan rumah, menjaga nama baik keluarga.</p>'+
+'<h3>Sekolah</h3><p class="small">Memakai seragam sesuai aturan, bekerja sama dalam tugas kelompok, berteman tanpa membedakan latar belakang.</p>'+
+'<h3>Masyarakat</h3><p class="small">Mengucapkan salam dan izin saat bertamu, ikut kerja bakti dan rapat RT/RW, menjaga hubungan baik dengan tetangga.</p>'+
+'<h3>Bangsa dan negara</h3><p class="small">Mematuhi peraturan lalu lintas, sadar membayar pajak, menjaga fasilitas umum.</p>'+
+'<p class="small muted">Buku Siswa hlm. 93–95'+cite(1)+'. Buku tidak mengelompokkan contoh ini ke jenis norma. Itu tugas penyelidikanmu.</p>'},
+
+/* 10 banyak norma */
+{html:
+'<span class="k">Penemuan penting</span><h2>Satu tindakan, banyak norma</h2>'+
+'<p class="big">Mengambil <i>smartphone</i> milik orang lain tanpa izin.</p>'+
+'<table class="tbl"><tbody>'+
+'<tr><td><span class="tag" style="--c:var(--agama);--cb:var(--agama-bg)">Agama</span></td><td>Dosa</td></tr>'+
+'<tr><td><span class="tag" style="--c:var(--susila);--cb:var(--susila-bg)">Kesusilaan</span></td><td>Menyesal dan merasa bersalah</td></tr>'+
+'<tr><td><span class="tag" style="--c:var(--sopan);--cb:var(--sopan-bg)">Kesopanan</span></td><td>Dicemooh orang sekitar</td></tr>'+
+'<tr><td><span class="tag" style="--c:var(--hukum);--cb:var(--hukum-bg)">Hukum</span></td><td>Pidana menurut Pasal 362 KUHP</td></tr></tbody></table>'+
+'<p>Keempat norma saling melengkapi (Buku Siswa hlm. 85–86'+cite(1)+').</p>'+
+'<div class="box small"><b>Tanda &#9733;</b> dipakai di puzzle untuk tindakan yang bisa masuk ke lebih dari satu norma. Jawaban kuat selalu menyebut <b>alasan</b> dan <b>sanksinya</b>.</div>'},
+
+/* 11 puzzle */
+{html:
+'<span class="k">Langkah 4 · Pengolahan data</span><h2>Main Puzzle Norma Kita</h2>'+
+'<div class="puzzle" id="puzzle"></div>'+
+'<p class="small muted" style="margin-top:.6em">Puzzle membantu hasil belajar Pendidikan Pancasila'+cite(9,10,11)+'.</p>'},
+
+/* 12 tebak normanya */
+{html:
+'<span class="k">Langkah 5 · Unjuk kerja</span><h2>Tebak Normanya</h2>'+
+'<ol class="steps">'+
+'<li><span>Kelompok memilih <b>satu keping buatan sendiri</b>.</span></li>'+
+'<li><span>Tentukan tindakan, norma, dan alasannya. Latihan 3 menit.</span></li>'+
+'<li><span>Peragakan <b>maksimal 30 detik</b>, tanpa properti.</span></li>'+
+'<li><span>Kelompok lain menebak: <b>tindakan apa, norma apa, mengapa</b>.</span></li></ol>'+
+'<div class="box small"><b>Aturan aman.</b> Peragakan tindakan yang <i>sesuai</i> norma, bukan pelanggarannya. Jangan mengejek suku, agama, atau kebiasaan teman. Tidak ada cara yang lebih benar hanya karena berbeda.</div>'+
+'<p class="small"><b>Peran:</b> pemeran, pengatur, dan penjelas. Semua anggota ikut terlibat.</p>'},
+
+/* 13 cara berbeda */
+{html:
+'<span class="k">Langkah 6 · Generalisasi</span><h2>Cara berbeda, nilai sama</h2>'+
+'<p>Dua murid sama-sama <b>menghormati orang tua</b>, tetapi caranya bisa berbeda: ada yang menyapa dengan bahasa halus, ada yang membantu pekerjaan rumah tanpa diminta.</p>'+
+'<div class="box"><b>Coba jawab:</b><ul><li>Apakah caranya harus sama?</li><li>Nilai apa yang tetap terlihat sama?</li><li>Apa yang bisa kamu pelajari dari pengalaman temanmu?</li></ul></div>'+
+'<p class="small">Pendekatan yang menghubungkan pelajaran dengan latar belakang budaya murid membuat kelas lebih inklusif dan murid lebih menghargai pendapat teman'+cite(7)+', serta menumbuhkan karakter kebinekaan'+cite(8)+'.</p>'},
+
+/* 14 refleksiku */
+{html:
+'<span class="k">Refleksi</span><h2>Refleksiku</h2>'+
+'<label class="lb" for="rf-1">1. Hari ini aku belajar bahwa&hellip;</label>'+
+'<textarea id="rf-1" rows="2" data-save="rf-1"></textarea>'+
+'<label class="lb" for="rf-2">2. Dugaan awalku ternyata&hellip;</label>'+
+'<textarea id="rf-2" rows="2" data-save="rf-2"></textarea>'+
+'<label class="lb" for="rf-3">3. Janji kecilku (satu tindakan nyata):</label>'+
+'<textarea id="rf-3" rows="2" data-save="rf-3"></textarea>'+
+'<p class="lb" style="margin-bottom:0" id="rf-lab">Penilaian diri</p>'+
+'<div class="radios" role="radiogroup" aria-labelledby="rf-lab">'+
+'<label><input type="radio" name="rf-self" value="paham" data-saver="rf-self">Sudah paham</label>'+
+'<label><input type="radio" name="rf-self" value="hampir" data-saver="rf-self">Hampir paham</label>'+
+'<label><input type="radio" name="rf-self" value="bantuan" data-saver="rf-self">Perlu bantuan</label></div>'+
+'<p class="small muted">Tulisanmu hanya tersimpan di perangkat ini. Tunjukkan ke gurumu bila ingin dibahas.</p>'},
+
+/* 15 rangkuman */
+{html:
+'<span class="k">Rangkuman</span><h2>Tahu, mampu, mau</h2>'+
+'<ul class="small">'+
+'<li>Norma berlaku bila ada perintah, larangan, sanksi, dan mengikat.</li>'+
+'<li><b>Agama</b> (dosa), <b>kesusilaan</b> (hati nurani), <b>kesopanan</b> (sanksi sosial), <b>hukum</b> (tegas dan tertulis).</li>'+
+'<li>Satu tindakan bisa berkaitan dengan lebih dari satu norma.</li>'+
+'<li>Bentuk tindakan boleh berbeda, nilainya sama.</li>'+
+'<li>Menerapkan norma berarti <b>tahu</b> alasannya, <b>mampu</b> melakukannya, dan <b>mau</b> membiasakannya.</li></ul>'+
+'<div class="box small"><b>Tantangan di rumah (tidak dinilai).</b> Ceritakan janji kecilmu ke keluarga, lalu tanyakan satu kebiasaan keluarga yang sesuai norma. Masuk norma apa?</div>'+
+'<p class="small muted"><b>Istilah kunci.</b> Sanksi: akibat bila norma dilanggar. Mengikat: berlaku bagi semua anggota. Hati nurani: suara hati yang membedakan benar dan salah.</p>'},
+
+/* 16 pustaka 1 */
+{cls:'refs',html:
+'<span class="k">Daftar pustaka \u00b7 1 dari 3</span><h2>Bacaan yang bisa kamu buka</h2>'+
+'<p class="small muted" style="margin-top:0">Semua tautan membuka artikel atau buku yang tersedia gratis.</p>'+
+'<ul class="reflist">'+REFS.slice(0,4).map(refItem).join('')+'</ul>'},
+
+/* 17 pustaka 2 */
+{cls:'refs',html:
+'<span class="k">Daftar pustaka \u00b7 2 dari 3</span><h2>Bacaan yang bisa kamu buka</h2>'+
+'<ul class="reflist">'+REFS.slice(4,8).map(refItem).join('')+'</ul>'},
+
+/* 18 pustaka 3 */
+{cls:'refs',html:
+'<span class="k">Daftar pustaka \u00b7 3 dari 3</span><h2>Bacaan yang bisa kamu buka</h2>'+
+'<ul class="reflist">'+REFS.slice(8).map(refItem).join('')+'</ul>'},
+
+/* 19 sampul belakang */
+{cls:'cover-pg back-pg',html:
+'<div class="cv"><p class="cv-k">Sampai jumpa</p><h1>Norma dimulai<br>dari kita</h1><p class="cv-s">Tahu, mampu, mau</p>'+
+'<p class="cv-m">Disusun oleh Umi Khoiriyah<br>SMPN 34 Surabaya<br>Sumber utama: Buku Siswa Pendidikan Pancasila Kelas VII, Bab 3</p></div>',noFolio:true}
+];
+var N=PAGES.length;
+
+/* tambahan gaya daftar pustaka */
+var st=document.createElement('style');
+st.textContent='.refs .pg, .pg .reflist{font-size:inherit}.reflist{list-style:none;padding:0!important;margin:0}.ref{font-size:.78em;line-height:1.32;margin:0 0 .55em;display:grid;grid-template-columns:2.2em 1fr;gap:.2em}.ref .rn{font-weight:800;color:var(--brand)}.ref a{font-weight:700}';
+document.head.appendChild(st);
+
+/* ===== Penyimpanan ringan (per perangkat) ===== */
+var store={get:function(k){try{return localStorage.getItem('pnk:'+k)}catch(e){return null}},
+           set:function(k,v){try{localStorage.setItem('pnk:'+k,v)}catch(e){}}};
+
+/* ===== Puzzle ===== */
+var NORMS=[['agama','Agama'],['susila','Kesusilaan'],['sopan','Kesopanan'],['hukum','Hukum']];
+var NAME={agama:'Agama',susila:'Kesusilaan',sopan:'Kesopanan',hukum:'Hukum'};
+var PIECES=[
+ {t:'Beribadah sesuai agama dan kepercayaan masing-masing',ok:['agama'],why:'Perintah Tuhan. Sanksinya dosa. (hlm. 79)'},
+ {t:'Selalu berbuat jujur dalam perkataan dan perbuatan',ok:['susila','agama'],star:1,why:'Bersumber dari suara hati. Sanksinya rasa bersalah dan malu. (hlm. 81)'},
+ {t:'Menjaga nama baik orang tua dan diri sendiri',ok:['susila','sopan'],star:1,why:'Hati nurani. Sanksinya rasa malu dan menyesal. (hlm. 93)'},
+ {t:'Mengucapkan salam dan meminta izin saat berkunjung ke rumah orang lain',ok:['sopan'],why:'Kebiasaan bergaul. Sanksinya ditegur atau dicemooh. (hlm. 94)'},
+ {t:'Membiasakan antre',ok:['sopan'],why:'Kebiasaan masyarakat. Sanksi sosial. (hlm. 83)'},
+ {t:'Menghormati kedua orang tua',ok:['sopan','agama','susila'],star:1,why:'Tata cara bergaul dengan yang lebih tua. Juga bisa dibaca sebagai perintah agama dan suara hati. (hlm. 93)'},
+ {t:'Memakai seragam sekolah sesuai aturan yang ditetapkan',ok:['hukum'],why:'Tata tertib sekolah tertulis. Sanksi teguran atau panggilan orang tua. (hlm. 93, 84–85)'},
+ {t:'Mematuhi peraturan lalu lintas',ok:['hukum'],why:'Aturan tertulis dari negara. Sanksi tegas. (hlm. 94–95)'},
+ {t:'Memiliki kesadaran membayar pajak',ok:['hukum'],why:'Aturan pemerintah. Sanksi tegas. (hlm. 95)'},
+ {t:'Tidak mengambil barang milik orang lain (keping tantangan)',ok:['agama','susila','sopan','hukum'],star:1,all:1,why:'Keempat norma berlaku: dosa, rasa bersalah dan malu, dicemooh, dan pidana (Pasal 362 KUHP). (hlm. 79, 86)'}
+];
+var pz={order:[],i:0,score:0,wrong:{},first:true,done:false,fb:''};
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function pzReset(){pz={order:shuffle(PIECES.map(function(_,i){return i})),i:0,score:0,wrong:{},first:true,done:false,fb:'',solved:false}}
+pzReset();
+function pzRender(){
+  var box=document.getElementById('puzzle'); if(!box) return;
+  if(pz.done){
+    var msg=pz.score>=8?'Hebat! Kamu menemukan polanya.':pz.score>=5?'Bagus! Ulangi untuk memperkuat alasanmu.':'Tidak apa-apa. Baca lagi halaman 6–8, lalu coba lagi.';
+    box.innerHTML='<div class="pz-res"><div>Skormu</div><div class="score">'+pz.score+'/'+PIECES.length+'</div><p>'+msg+'</p><button class="btn" type="button" data-act="pz-again">Main lagi</button></div>';
+    return;
+  }
+  var p=PIECES[pz.order[pz.i]];
+  var btns=NORMS.map(function(n){return '<button type="button" class="nbtn nrm-'+n[0]+'" data-act="pz-pick" data-n="'+n[0]+'"'+((pz.wrong[n[0]]||pz.solved)?' disabled':'')+'>'+n[1]+'</button>'}).join('');
+  box.innerHTML='<div class="pz-top"><span>Keping '+(pz.i+1)+' dari '+PIECES.length+(p.star?' · ★':'')+'</span><span>Skor '+pz.score+'</span></div>'+
+   '<div class="pz-piece">'+p.t+'</div><div class="pz-q">Norma mana yang paling mendasari tindakan ini?</div>'+
+   '<div class="pz-grid">'+btns+'</div><div class="pz-fb" role="status" aria-live="polite">'+pz.fb+'</div>'+
+   (pz.solved?'<button type="button" class="btn" data-act="pz-next">'+(pz.i===PIECES.length-1?'Lihat skor':'Keping berikutnya')+'</button>':'');
+}
+function pzPick(n){
+  var p=PIECES[pz.order[pz.i]]; if(pz.solved) return;
+  if(p.ok.indexOf(n)>-1){
+    pz.solved=true;
+    if(pz.first) pz.score++;
+    var extra='';
+    if(p.all) extra=' Tindakan ini berkaitan dengan keempat norma.';
+    else if(p.ok[0]!==n) extra=' Bisa dipertahankan! Jawaban utama di kunci: '+NAME[p.ok[0]]+'.';
+    else if(p.ok.length>1) extra=' ★ Bisa juga: '+p.ok.slice(1).map(function(x){return NAME[x]}).join(', ')+'.';
+    pz.fb='<span class="ok">Tepat.</span> '+p.why+extra;
+  }else{
+    pz.wrong[n]=1; pz.first=false;
+    pz.fb='<span class="no">Belum tepat.</span> Tanyakan: siapa yang menegur kalau tindakan ini tidak dilakukan, dan apa sanksinya?';
+  }
+  pzRender();
+}
+function pzNext(){
+  if(pz.i>=PIECES.length-1){pz.done=true}else{pz.i++;pz.wrong={};pz.first=true;pz.solved=false;pz.fb=''}
+  pzRender();
+}
+
+/* ===== Mesin buku ===== */
+var bookEl=document.getElementById('book'),stage=document.getElementById('stage'),readerEl=document.getElementById('reader'),
+    countEl=document.getElementById('count'),prevB=document.getElementById('prev'),nextB=document.getElementById('next'),
+    modeB=document.getElementById('modeBtn'),ctrl=document.getElementById('ctrl');
+var S={mode:'wide',pw:300,f:0,L:0,forceReader:false,leaves:[]};
+var R=1.4;
+
+function pageEl(i){
+  var d=PAGES[i],s=document.createElement('section');
+  s.className='pg'+(d.cls?' '+d.cls:'');s.setAttribute('data-i',i);
+  s.innerHTML=d.html+((d.cls&&d.cls.indexOf('cover')>-1)||d.noFolio?'':'<div class="folio">'+(i+1)+'</div>');
+  return s;
+}
+function pageForF(f){
+  if(S.mode==='wide'){return f===0?0:(f>=S.L?N-1:2*f)}
+  return f;
+}
+function fForPage(p){
+  if(S.mode==='wide'){return p%2===0?p/2:(p+1)/2}
+  return p;
+}
+function decideMode(){
+  var W=stage.clientWidth,H=stage.clientHeight;
+  var availH=H-40;
+  if(S.forceReader||availH<300||W<220){return {mode:'reader',pw:0}}
+  var wide=Math.min(W/2-4,availH/R,500);
+  if(W>=720&&wide>=250){return {mode:'wide',pw:Math.floor(wide)}}
+  var nar=Math.min(W-8,availH/R,470);
+  if(nar<200){return {mode:'reader',pw:0}}
+  return {mode:'narrow',pw:Math.floor(nar)};
+}
+function build(){
+  var m=decideMode();
+  var keepPage=(S.built?pageForF(S.f):0);
+  S.mode=m.mode;S.pw=m.pw;
+  var reader=S.mode==='reader';
+  stage.hidden=reader;readerEl.hidden=!reader;ctrl.hidden=reader;
+  modeB.textContent=reader?'Mode buku 3D':'Mode baca';
+  modeB.setAttribute('aria-pressed',reader?'true':'false');
+  bookEl.innerHTML='';readerEl.innerHTML='';S.leaves=[];
+  if(reader){
+    var hint=document.createElement('p');hint.className='hint';hint.textContent='Mode baca: gulir ke bawah untuk membaca semua halaman.';
+    readerEl.appendChild(hint);
+    for(var i=0;i<N;i++){readerEl.appendChild(pageEl(i))}
+    S.built=true;afterBuild();return;
+  }
+  bookEl.style.setProperty('--pw',S.pw+'px');bookEl.classList.toggle('narrow',S.mode==='narrow');
+  bookEl.style.height=(S.pw*R)+'px';
+  bookEl.style.width=(S.mode==='wide'?S.pw*2:S.pw)+'px';
+  S.L=S.mode==='wide'?N/2:N;
+  for(var k=0;k<S.L;k++){
+    var leaf=document.createElement('div');leaf.className='leaf';
+    leaf.style.width=S.pw+'px';leaf.style.height=(S.pw*R)+'px';
+    leaf.style.left=(S.mode==='wide'?S.pw:0)+'px';
+    var ff=document.createElement('div');ff.className='face front';
+    var fb=document.createElement('div');fb.className='face back';
+    if(S.mode==='wide'){ff.appendChild(pageEl(2*k));fb.appendChild(pageEl(2*k+1));ff.dataset.p=2*k;fb.dataset.p=2*k+1}
+    else{ff.appendChild(pageEl(k));fb.classList.add('blank');ff.dataset.p=k;fb.dataset.p=-1}
+    leaf.appendChild(ff);leaf.appendChild(fb);bookEl.appendChild(leaf);S.leaves.push(leaf);
+  }
+  S.f=Math.max(0,Math.min(maxF(),fForPage(keepPage)));
+  S.built=true;
+  apply(false);
+  afterBuild();
+}
+function maxF(){return S.mode==='wide'?S.L:S.L-1}
+function apply(){
+  var f=S.f,L=S.L;
+  S.leaves.forEach(function(lf,k){
+    lf.classList.toggle('flipped',k<f);
+    lf.style.zIndex=k<f?(k+1):(L-k);
+  });
+  var tx=0,tilt=0;
+  if(S.mode==='wide'){
+    if(f===0){tx=-S.pw/2;tilt=-9}
+    else if(f>=L){tx=S.pw/2;tilt=9}
+  }else{ if(f===0)tilt=-9 }
+  bookEl.style.transform='translateX('+tx+'px) rotateY('+tilt+'deg)';
+  updateUI();
+}
+function visiblePages(){
+  if(S.mode==='wide'){var v=[];if(S.f>0)v.push(2*S.f-1);if(S.f<S.L)v.push(2*S.f);return v}
+  return [S.f];
+}
+function updateUI(){
+  var v=visiblePages();
+  var label=v.length===2?'Halaman '+(v[0]+1)+'–'+(v[1]+1):('Halaman '+(v[0]+1));
+  countEl.textContent=label+' dari '+N;
+  prevB.disabled=S.f<=0;nextB.disabled=S.f>=maxF();
+  bookEl.querySelectorAll('.face').forEach(function(fc){
+    var p=parseInt(fc.dataset.p,10);
+    fc.toggleAttribute('inert',v.indexOf(p)<0);
+    fc.setAttribute('aria-hidden',v.indexOf(p)<0?'true':'false');
+  });
+}
+function goF(nf,animateStagger){
+  nf=Math.max(0,Math.min(maxF(),nf));
+  if(nf===S.f)return;
+  var dir=nf>S.f?1:-1,from=S.f,reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lo=Math.min(from,nf),hi=Math.max(from,nf),n=hi-lo;
+  S.leaves.forEach(function(lf,k){
+    if(k>=lo&&k<hi&&!reduce){
+      var idx=dir>0?(k-lo):(hi-1-k);
+      var d=Math.min(idx*70,700);
+      lf.style.transitionDelay=d+'ms,'+(450+d)+'ms';
+    }else lf.style.transitionDelay='';
+  });
+  S.f=nf;apply();
+  setTimeout(function(){S.leaves.forEach(function(lf){lf.style.transitionDelay=''})},1800);
+}
+function goPage(p){
+  if(S.mode==='reader'){
+    var el=readerEl.querySelector('.pg[data-i="'+p+'"]');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  goF(fForPage(p));
+}
+function afterBuild(){
+  /* simpan isi isian */
+  document.querySelectorAll('[data-save]').forEach(function(el){
+    var v=store.get(el.getAttribute('data-save'));if(v!==null)el.value=v;
+    el.addEventListener('input',function(){store.set(el.getAttribute('data-save'),el.value)});
+  });
+  document.querySelectorAll('[data-saver]').forEach(function(el){
+    var v=store.get(el.getAttribute('data-saver'));if(v!==null&&el.value===v)el.checked=true;
+    el.addEventListener('change',function(){if(el.checked)store.set(el.getAttribute('data-saver'),el.value)});
+  });
+  pzRender();
+}
+
+/* ===== Interaksi ===== */
+document.addEventListener('click',function(e){
+  var g=e.target.closest('[data-go]');
+  if(g){e.preventDefault();goPage(parseInt(g.getAttribute('data-go'),10)-1+0);return}
+  var a=e.target.closest('[data-act]');
+  if(a){
+    var act=a.getAttribute('data-act');
+    if(act==='pz-pick')pzPick(a.getAttribute('data-n'));
+    else if(act==='pz-next')pzNext();
+    else if(act==='pz-again'){pzReset();pzRender()}
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.matches&&e.target.matches('a[data-go]')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.target.click();return}
+  if(e.target.matches&&e.target.matches('textarea,select,input'))return;
+  if(S.mode==='reader')return;
+  if(e.key==='ArrowRight')goF(S.f+1);
+  else if(e.key==='ArrowLeft')goF(S.f-1);
+});
+prevB.addEventListener('click',function(){goF(S.f-1)});
+nextB.addEventListener('click',function(){goF(S.f+1)});
+modeB.addEventListener('click',function(){S.forceReader=!S.forceReader;build()});
+
+var sx=0,sy=0,sdown=false;
+stage.addEventListener('pointerdown',function(e){
+  if(e.target.closest('button,a,textarea,select,input,label'))return;
+  sdown=true;sx=e.clientX;sy=e.clientY;
+});
+stage.addEventListener('pointerup',function(e){
+  if(!sdown)return;sdown=false;
+  var dx=e.clientX-sx,dy=e.clientY-sy;
+  if(Math.abs(dx)>50&&Math.abs(dx)>1.5*Math.abs(dy)){goF(S.f+(dx<0?1:-1))}
+});
+stage.addEventListener('pointercancel',function(){sdown=false});
+
+var rt;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);rt=setTimeout(function(){
+    var m=decideMode();
+    if(m.mode!==S.mode||m.pw!==S.pw)build();
+  },150);
+});
+build();
+window.__pnk={S:S,goF:goF,goPage:goPage,N:N};
+})();
+</script>
+
+</body></html>
